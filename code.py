@@ -228,6 +228,7 @@ def game_over_scene(final_score):
     # repeat forever, game loop
     while True:
         # get user input
+        pass
 
         # update game logic
 
