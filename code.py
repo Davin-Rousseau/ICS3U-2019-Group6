@@ -129,7 +129,7 @@ def game_splash_scene():
     # sets the background to image 0 in the bank
     background = stage.Grid(image_bank_2, constants.SCREEN_GRID_X,
                             constants.SCREEN_GRID_Y)
-    
+
     text = []
 
     text1 = stage.Text(width=29, height=14, font=None,
@@ -138,7 +138,7 @@ def game_splash_scene():
     text1.move(19, 50)
     text1.text("Rousseau & Watson")
     text.append(text1)
-    
+
     text2 = stage.Text(width=29, height=14, font=None,
                        palette=constants.MT_GAME_STUDIO_PALETTE,
                        buffer=None)
@@ -174,27 +174,39 @@ def game_splash_scene():
 
 def main_menu_scene():
     # this function is the game scene
-    
+
     # an image bank for CircuitPython
+    image_bank_1 = stage.Bank.from_bmp16("meteor.bmp")
     image_bank_2 = stage.Bank.from_bmp16("mt_game_studio.bmp")
+    background_bank = stage.Bank.from_bmp16("asteroids-background.bmp")
 
     # sets the background to image 0 in the bank
     background = stage.Grid(image_bank_2, constants.SCREEN_GRID_X,
                             constants.SCREEN_GRID_Y)
-    
+
+    sprites = []
     text = []
-    
-    text1 = stage.Text(width=29, height=14, font=None,
-                       palette=constants.MT_GAME_STUDIO_PALETTE,
-                       buffer=None)
-    text1.move(10, 50)
-    text1.text("Menu scene(works!)")
-    text.append(text1)
+    title_meteor = stage.Sprite(image_bank_1, 0, 80, 64)
+    sprites.append(title_meteor)
+
+    background = stage.Grid(background_bank, constants.SCREEN_X,
+                            constants.SCREEN_Y)
+    for x_location in range(constants.SCREEN_GRID_X):
+        for y_location in range(constants.SCREEN_GRID_Y):
+            tile_picked = random.randint(0,15)
+            background.tile(x_location, y_location, tile_picked)
+
+    #text1 = stage.Text(width=29, height=14, font=None,
+                       #palette=constants.MT_GAME_STUDIO_PALETTE,
+                       #buffer=None)
+    #text1.move(10, 50)
+    #text1.text("Menu scene(works!)")
+    #text.append(text1)
     # create a stage for the background to show up on
     #   and set the frame rate to 60fps
     game = stage.Stage(ugame.display, 60)
     # set the layers, items show up in order
-    game.layers = text + [background]
+    game.layers = sprites + text + [background]
     # render the background and inital location of sprite list
     # most likely you will only render background once per scene
     game.render_block()
@@ -202,8 +214,8 @@ def main_menu_scene():
     while True:
         # get user input
 
+
         # update game logic
-        time.sleep(1.0)
         game_scene()
         # redraw sprite list
         pass # just a placeholder until you write the code
