@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 
 # Created by: Davin and DJ
@@ -176,25 +175,25 @@ def main_menu_scene():
     # this function is the game scene
 
     # an image bank for CircuitPython
+    image_bank_0 = stage.Bank.from_bmp16("asteroids-background.bmp")
     image_bank_1 = stage.Bank.from_bmp16("meteor.bmp")
     image_bank_2 = stage.Bank.from_bmp16("mt_game_studio.bmp")
-    background_bank = stage.Bank.from_bmp16("asteroids-background.bmp")
 
-    # sets the background to image 0 in the bank
-    background = stage.Grid(image_bank_2, constants.SCREEN_GRID_X,
+
+    # sets the background
+    background = stage.Grid(image_bank_0, constants.SCREEN_GRID_X,
                             constants.SCREEN_GRID_Y)
+    for x_location in range(constants.SCREEN_GRID_X):
+        for y_location in range(constants.SCREEN_GRID_Y):
+            tile_picked = random.randint(0,15)
+            background.tile(x_location, y_location, tile_picked)
 
     sprites = []
     text = []
     title_meteor = stage.Sprite(image_bank_1, 0, 80, 64)
     sprites.append(title_meteor)
 
-    background = stage.Grid(background_bank, constants.SCREEN_X,
-                            constants.SCREEN_Y)
-    for x_location in range(constants.SCREEN_GRID_X):
-        for y_location in range(constants.SCREEN_GRID_Y):
-            tile_picked = random.randint(0,15)
-            background.tile(x_location, y_location, tile_picked)
+
 
     #text1 = stage.Text(width=29, height=14, font=None,
                        #palette=constants.MT_GAME_STUDIO_PALETTE,
@@ -216,7 +215,7 @@ def main_menu_scene():
 
 
         # update game logic
-        game_scene()
+        #game_scene()
         # redraw sprite list
         pass # just a placeholder until you write the code
 
