@@ -57,8 +57,7 @@ def mt_splash_scene():
     image_bank_2 = stage.Bank.from_bmp16("mt_game_studio.bmp")
 
     # sets the background to image 0 in the bank
-    background = stage.Grid(image_bank_2, constants.SCREEN_GRID_X,
-                            constants.SCREEN_GRID_Y)
+    background = stage.Grid(image_bank_2, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y)
 
     # used this program to split the iamge into tile: https://ezgif.com/sprite-cutter/ezgif-5-818cdbcc3f66.png
     background.tile(2, 2, 0)  # blank white
@@ -91,9 +90,7 @@ def mt_splash_scene():
 
     text = []
 
-    text1 = stage.Text(width=29, height=14, font=None,
-                       palette=constants.MT_GAME_STUDIO_PALETTE,
-                       buffer=None)
+    text1 = stage.Text(width=29, height=14, font=None, palette=constants.MT_GAME_STUDIO_PALETTE, buffer=None)
     text1.move(20, 10)
     text1.text("MT Game Studios")
     text.append(text1)
@@ -126,21 +123,16 @@ def game_splash_scene():
     image_bank_2 = stage.Bank.from_bmp16("mt_game_studio.bmp")
 
     # sets the background to image 0 in the bank
-    background = stage.Grid(image_bank_2, constants.SCREEN_GRID_X,
-                            constants.SCREEN_GRID_Y)
+    background = stage.Grid(image_bank_2, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y)
 
     text = []
 
-    text1 = stage.Text(width=29, height=14, font=None,
-                       palette=constants.MT_GAME_STUDIO_PALETTE,
-                       buffer=None)
+    text1 = stage.Text(width=29, height=14, font=None, palette=constants.MT_GAME_STUDIO_PALETTE, buffer=None)
     text1.move(19, 50)
     text1.text("Rousseau & Watson")
     text.append(text1)
 
-    text2 = stage.Text(width=29, height=14, font=None,
-                       palette=constants.MT_GAME_STUDIO_PALETTE,
-                       buffer=None)
+    text2 = stage.Text(width=29, height=14, font=None, palette=constants.MT_GAME_STUDIO_PALETTE, buffer=None)
     text2.move(35, 60)
     text2.text("Corporations")
     text.append(text2)
@@ -172,7 +164,8 @@ def game_splash_scene():
 
 
 def main_menu_scene():
-    # this function is the game scene
+    # this function is the menu scene
+    # this code is only temporary so that I can work on game scene
 
     # an image bank for CircuitPython
     image_bank_0 = stage.Bank.from_bmp16("asteroids-background.bmp")
@@ -201,12 +194,15 @@ def main_menu_scene():
     #text1.move(10, 50)
     #text1.text("Menu scene(works!)")
     #text.append(text1)
+
     # create a stage for the background to show up on
     #   and set the frame rate to 60fps
     game = stage.Stage(ugame.display, 60)
     # set the layers, items show up in order
+    
     game.layers = sprites + text + [background]
     # render the background and inital location of sprite list
+
     # most likely you will only render background once per scene
     game.render_block()
     # repeat forever, game loop
@@ -222,7 +218,21 @@ def main_menu_scene():
 
 def game_scene():
     # this function is the game scene
+    # background image bank ready
+    background_bank = stage.Bank.from_bmp16("background.bmp")
+    background = stage.Grid(background_bank, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y)
+    for x_location in range(constants.SCREEN_GRID_X):
+        for y_location in range(constants.SCREEN_GRID_Y):
+            tile_picked = random.randint(0, 15)
+            background.tile(x_location, y_location, tile_picked)
 
+    # create a stage for background to show up on
+    # set frame rate to 60fps
+    game = stage.Stage(ugame.display, 60)
+    # set layers, items show up in order
+    game.layers = [background]
+    # render background and sprite list
+    game.render_block()
     # repeat forever, game loop
     while True:
         # get user input
@@ -239,7 +249,6 @@ def game_over_scene(final_score):
     # repeat forever, game loop
     while True:
         # get user input
-        pass
 
         # update game logic
 
