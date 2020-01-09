@@ -168,9 +168,10 @@ def main_menu_scene():
     # this code is only temporary so that I can work on game scene
 
     # an image bank for CircuitPython
-    image_bank_0 = stage.Bank.from_bmp16("asteroids-background.bmp")
+    image_bank_0 = stage.Bank.from_bmp16("background.bmp")
     image_bank_1 = stage.Bank.from_bmp16("meteor.bmp")
     image_bank_2 = stage.Bank.from_bmp16("mt_game_studio.bmp")
+    colour_bank= stage.Bank.from_bmp16("colours.bmp")
 
 
     # sets the background
@@ -180,26 +181,26 @@ def main_menu_scene():
         for y_location in range(constants.SCREEN_GRID_Y):
             tile_picked = random.randint(0,15)
             background.tile(x_location, y_location, tile_picked)
-
     sprites = []
     text = []
+    text1 = stage.Text(width=29, height=14, font=None, palette=constants.MT_GAME_STUDIO_PALETTE, buffer=None)
+    text1.move(10, 20)
+    text1.text("Asteroid Breaker")
+    text.append(text1)
+    text2 = stage.Text(width=29, height=14, font=None, palette=constants.MT_GAME_STUDIO_PALETTE, buffer=None)
+    text2.move (5, 100)
+    text2.text("A = Easy  B = Hard")
+    text.append(text2)
+
     title_meteor = stage.Sprite(image_bank_1, 0, 80, 64)
     sprites.append(title_meteor)
 
-
-
-    #text1 = stage.Text(width=29, height=14, font=None,
-                       #palette=constants.MT_GAME_STUDIO_PALETTE,
-                       #buffer=None)
-    #text1.move(10, 50)
-    #text1.text("Menu scene(works!)")
-    #text.append(text1)
 
     # create a stage for the background to show up on
     #   and set the frame rate to 60fps
     game = stage.Stage(ugame.display, 60)
     # set the layers, items show up in order
-    
+
     game.layers = sprites + text + [background]
     # render the background and inital location of sprite list
 
