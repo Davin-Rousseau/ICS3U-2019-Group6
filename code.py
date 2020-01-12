@@ -173,9 +173,11 @@ def main_menu_scene():
     image_bank_1 = stage.Bank.from_bmp16("meteor.bmp")
     image_bank_2 = stage.Bank.from_bmp16("mt_game_studio.bmp")
     colour_bank= stage.Bank.from_bmp16("colours.bmp")
+    
+    # difficulty multipliers that will be passed over to the game scene
+    easy_mode = 1
+    hard_mode = 3
 
-    # sets the background to image 0 in the bank
-    background = stage.Grid(image_bank_2, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y)
 
     # sets the background
     background = stage.Grid(image_bank_0, constants.SCREEN_GRID_X,
@@ -198,10 +200,12 @@ def main_menu_scene():
     title_meteor = stage.Sprite(image_bank_1, 0, 80, 64)
     sprites.append(title_meteor)
 
+
     # create a stage for the background to show up on
     #   and set the frame rate to 60fps
     game = stage.Stage(ugame.display, 60)
     # set the layers, items show up in order
+
     game.layers = sprites + text + [background]
     # render the background and inital location of sprite list
 
@@ -209,19 +213,21 @@ def main_menu_scene():
     game.render_block()
     # repeat forever, game loop
     while True:
+        keys = ugame.buttons.get_pressed()
         # get user input
+        if keys & ugame.K_X != 0:
+            game_scene(easy_mode)
+        if keys & ugame.K_O != 0:
+            game_scene(hard_mode)
+
 
         # update game logic
-        time.sleep(1.0)
-        game_scene()
         # redraw sprite list
         pass # just a placeholder until you write the code
 
 
-def game_scene():
+def game_scene(diff_mul):
     # this function is the game scene
-    # image bank for ship and lasers
-    ship_lasers_bank = stage.Bank.from_bmp16("ship-and-lasers.bmp")
     # background image bank ready
     background_bank = stage.Bank.from_bmp16("background.bmp")
     background = stage.Grid(background_bank, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y)
@@ -229,22 +235,12 @@ def game_scene():
         for y_location in range(constants.SCREEN_GRID_Y):
             tile_picked = random.randint(0, 15)
             background.tile(x_location, y_location, tile_picked)
-    
-    # a list of sprites which will be updated every frame
-    sprites = []
-    
-    # get ship to show up
-    player_ship = stage.Sprite(ship_lasers_bank, 0, int(constants.SCREEN_X / 2 -
-                               constants.SPRITE_SIZE / 2),
-                               int(constants.SCREEN_Y - constants.SPRITE_SIZE +
-                               constants.SPRITE_SIZE / 2))
-    sprites.insert(0, player_ship) # insert at top of sprite list
 
     # create a stage for background to show up on
     # set frame rate to 60fps
     game = stage.Stage(ugame.display, 60)
     # set layers, items show up in order
-    game.layers = sprites + [background]
+    game.layers = [background]
     # render background and sprite list
     game.render_block()
     # repeat forever, game loop
@@ -254,8 +250,7 @@ def game_scene():
         # update game logic
 
         # redraw sprite list
-        game.render_sprites(sprites)
-        game.tick() # wait until refresh rate finishes
+        pass # just a placeholder until you write the code
 
 
 def game_over_scene(final_score):
