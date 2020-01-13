@@ -12,6 +12,12 @@ SCREEN_GRID_Y = 16
 SPRITE_SIZE = 16
 OFF_TOP_SCREEN = -1 * SPRITE_SIZE
 OFF_BOTTOM_SCREEN = SCREEN_Y + SPRITE_SIZE
+OFF_LEFT_SCREEN = -1 * SPRITE_SIZE
+OFF_RIGHT_SCREEN = SCREEN_X + SPRITE_SIZE
+TOTAL_ENEMY_1 = 2
+TOTAL_ENEMY_2 = 2
+TOTAL_ASTEROIDS = 4
+ENEMY_SPEED = 1
 
 MT_GAME_STUDIO_PALETTE = (b'\xf8\x1f\x00\x00\xcey\x00\xff\xf8\x1f\xff\x19\xfc\xe0\xfd\xe0'
        b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff')
