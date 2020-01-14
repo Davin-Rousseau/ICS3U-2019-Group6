@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 
 # Created by: Davin and DJ
@@ -13,6 +12,21 @@ import random
 
 import constants
 
+def show_enemy(enemy):
+    for enemy_number in range(len(enemy)):
+        if enemy[enemy_number].y < 0:
+            enemy[enemy_number].move(random.randint(0 + constants.SPRITE_SIZE, constants.SCREEN_X - constants.SPRITE_SIZE), constants.OFF_TOP_SCREEN)
+            break
+def show_enemy_2(enemy):
+    for enemy_number in range(len(enemy)):
+        if enemy[enemy_number].x < 0:
+            enemy[enemy_number].move(constants.OFF_TOP_SCREEN, random.randint(0 + constants.SPRITE_SIZE, constants.SCREEN_X - constants.SPRITE_SIZE),)
+            break
+def show_enemy_3(enemy):
+    for enemy_number in range(len(enemy)):
+        if enemy[enemy_number].x < 0:
+            enemy[enemy_number].move(constants.OFF_TOP_SCREEN, random.randint(0 + constants.SPRITE_SIZE, constants.SCREEN_X - constants.SPRITE_SIZE),)
+            break
 
 def blank_white_reset_scene():
     # this function is the  blank splash scene game loop
@@ -171,18 +185,18 @@ def main_menu_scene():
     # an image bank for CircuitPython
     image_bank_0 = stage.Bank.from_bmp16("background.bmp")
     image_bank_1 = stage.Bank.from_bmp16("meteor.bmp")
-    image_bank_2 = stage.Bank.from_bmp16("mt_game_studio.bmp")
-    colour_bank= stage.Bank.from_bmp16("colours.bmp")
 
-    # sets the background to image 0 in the bank
-    background = stage.Grid(image_bank_2, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y)
+    # difficulty multipliers that will be passed over to the game scene
+    easy_mode = 1
+    hard_mode = 3
+
 
     # sets the background
     background = stage.Grid(image_bank_0, constants.SCREEN_GRID_X,
                             constants.SCREEN_GRID_Y)
     for x_location in range(constants.SCREEN_GRID_X):
         for y_location in range(constants.SCREEN_GRID_Y):
-            tile_picked = random.randint(0,15)
+            tile_picked = random.randint(0, 15)
             background.tile(x_location, y_location, tile_picked)
     sprites = []
     text = []
@@ -191,17 +205,19 @@ def main_menu_scene():
     text1.text("Asteroid Breaker")
     text.append(text1)
     text2 = stage.Text(width=29, height=14, font=None, palette=constants.MT_GAME_STUDIO_PALETTE, buffer=None)
-    text2.move (5, 100)
+    text2.move(5, 100)
     text2.text("A = Easy  B = Hard")
     text.append(text2)
 
     title_meteor = stage.Sprite(image_bank_1, 0, 80, 64)
     sprites.append(title_meteor)
 
+
     # create a stage for the background to show up on
     #   and set the frame rate to 60fps
     game = stage.Stage(ugame.display, 60)
     # set the layers, items show up in order
+
     game.layers = sprites + text + [background]
     # render the background and inital location of sprite list
 
@@ -209,53 +225,94 @@ def main_menu_scene():
     game.render_block()
     # repeat forever, game loop
     while True:
+        keys = ugame.buttons.get_pressed()
         # get user input
+        if keys & ugame.K_X != 0:
+            game_scene(easy_mode)
+        if keys & ugame.K_O != 0:
+            game_scene(hard_mode)
+
 
         # update game logic
-        time.sleep(1.0)
-        game_scene()
         # redraw sprite list
         pass # just a placeholder until you write the code
 
 
-def game_scene():
+def game_scene(diff_mul):
     # this function is the game scene
-    # image bank for ship and lasers
-    ship_lasers_bank = stage.Bank.from_bmp16("ship-and-lasers.bmp")
     # background image bank ready
     background_bank = stage.Bank.from_bmp16("background.bmp")
+    image_bank_0 = stage.Bank.from_bmp16("meteor.bmp")
+    image_bank_1 = stage.Bank.from_bmp16("ship-and-lasers.bmp")
     background = stage.Grid(background_bank, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y)
     for x_location in range(constants.SCREEN_GRID_X):
         for y_location in range(constants.SCREEN_GRID_Y):
             tile_picked = random.randint(0, 15)
             background.tile(x_location, y_location, tile_picked)
-    
-    # a list of sprites which will be updated every frame
-    sprites = []
-    
-    # get ship to show up
-    player_ship = stage.Sprite(ship_lasers_bank, 0, int(constants.SCREEN_X / 2 -
-                               constants.SPRITE_SIZE / 2),
-                               int(constants.SCREEN_Y - constants.SPRITE_SIZE +
-                               constants.SPRITE_SIZE / 2))
-    sprites.insert(0, player_ship) # insert at top of sprite list
 
-    # create a stage for background to show up on
+    shoot_sound = open("pew.wav", 'rb')
+
+    asteroids = []
+    for asteroids_number in range(constants.TOTAL_ASTEROIDS * diff_mul):
+        single_asteroid = stage.Sprite(image_bank_0, 0, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
+        asteroids.append(single_asteroid)
+
+    enemy_1 = []
+    for enemy_number_1 in range(constants.TOTAL_ENEMY_1 * diff_mul):
+        single_1 = stage.Sprite(image_bank_0, 1, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
+        enemy_1.append(single_1)
+
+    enemy_2 = []
+    for enemy_number_2 in range(constants.TOTAL_ENEMY_2 * diff_mul):
+        single_2 = stage.Sprite(image_bank_0, 2, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
+        enemy_2.append(single_2)
+
+    enemy_lasers_v = []
+    for enemy_laser_count_v in range(constants.ENEMY_LASERS_V):
+        single_laser_v_e = stage.Sprite(image_bank_1, 8, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
+        enemy_lasers_v.append(single_laser_v_e)
+
+
+    enemy_count = 1
+    show_enemy(asteroids)
+    show_enemy_2(enemy_1)
+    show_enemy_3(enemy_2)
     # set frame rate to 60fps
     game = stage.Stage(ugame.display, 60)
     # set layers, items show up in order
-    game.layers = sprites + [background]
+    game.layers = enemy_1 + enemy_2 + asteroids + [background]
     # render background and sprite list
     game.render_block()
+    timer = 0
     # repeat forever, game loop
     while True:
         # get user input
 
-        # update game logic
 
+        keys = ugame.buttons.get_pressed()
+
+        # update game logic
+        for asteroid_number in range(len(asteroids)):
+            if asteroids[asteroid_number].x > 0:
+                asteroids[asteroid_number].move(asteroids[asteroid_number].x, asteroids[asteroid_number].y + constants.ENEMY_SPEED)
+                if asteroids[asteroid_number].y > constants.SCREEN_Y:
+                    asteroids[asteroid_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                    show_enemy(asteroids)
+        for enemy_number_1 in range(len(enemy_1)):
+            if enemy_1[enemy_number_1].y > 0:
+                enemy_1[enemy_number_1].move(enemy_1[enemy_number_1].x + constants.ENEMY_SPEED, enemy_1[enemy_number_1].y)
+                if enemy_1[enemy_number_1].x > constants.SCREEN_X:
+                    enemy_1[enemy_number_1].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                    show_enemy_2(enemy_1)
+        for enemy_number_2 in range(len(enemy_2)):
+            if enemy_2[enemy_number_2].y > 0:
+                enemy_2[enemy_number_2].move(enemy_2[enemy_number_2].x + constants.ENEMY_SPEED, enemy_2[enemy_number_2].y)
+                if enemy_2[enemy_number_2].x > constants.SCREEN_X:
+                    enemy_2[enemy_number_2].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                    show_enemy_3(enemy_2)
         # redraw sprite list
-        game.render_sprites(sprites)
-        game.tick() # wait until refresh rate finishes
+        game.render_sprites(asteroids + enemy_1 + enemy_2)
+        game.tick()
 
 
 def game_over_scene(final_score):
