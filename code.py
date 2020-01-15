@@ -249,8 +249,6 @@ def game_scene(diff_mul):
         for y_location in range(constants.SCREEN_GRID_Y):
             tile_picked = random.randint(0, 15)
             background.tile(x_location, y_location, tile_picked)
-
-    shoot_sound = open("pew.wav", 'rb')
     a_button = constants.button_state["button_up"]
     sound = ugame.audio
     sound.stop()
