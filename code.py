@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 
 # Created by: Davin and DJ
@@ -11,7 +12,7 @@ import time
 import random
 
 import constants
-
+score = 0
 def show_enemy(enemy):
     for enemy_number in range(len(enemy)):
         if enemy[enemy_number].y < 0:
@@ -254,6 +255,24 @@ def game_scene(diff_mul):
     sound.stop()
     sound.mute(False)
 
+    # Buttons that you want to keep state information on
+    a_button = constants.button_state["button_up"]
+    start_button = constants.button_state["button_up"]
+    select_button = constants.button_state["button_up"]
+
+    sprites = []
+    ship = stage.Sprite(image_bank_1, 0, 80, 64)
+    sprites.insert(0, ship)  # insert at the top of sprite list
+    
+    global score
+    scoretext = []
+    score_text = stage.Text(width=29, height=14, font=None,
+                            palette=constants.SCORE_PALETTE, buffer=None)
+    score_text.cursor(0, 0)
+    score_text.move(86, 118)
+    score_text.text("Points: {0}".format(score))
+    scoretext.append(score_text)
+
     asteroids = []
     for asteroids_number in range(constants.TOTAL_ASTEROIDS * diff_mul):
         single_asteroid = stage.Sprite(image_bank_0, 0, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
@@ -277,23 +296,49 @@ def game_scene(diff_mul):
     # set frame rate to 60fps
     game = stage.Stage(ugame.display, 60)
     # set layers, items show up in order
-    game.layers = enemy_1 + enemy_2 + asteroids + [background]
+    game.layers = sprites + enemy_1 + enemy_2 + asteroids + scoretext + [background]
     # render background and sprite list
     game.render_block()
     # repeat forever, game loop
     while True:
         # get user input
         keys = ugame.buttons.get_pressed()
-        if keys & ugame.K_X != 0:
-            if a_button == constants.button_state["button_up"]:
-                a_button = constants.button_state["button_just_pressed"]
-            elif a_button == constants.button_state["button_just_pressed"]:
-                a_button = constants.button_state["button_still_pressed"]
-        else:
-            if a_button == constants.button_state["button_still_pressed"]:
-                a_button = constants.button_state["button_released"]
+       
+        # Move ship right
+        if keys & ugame.K_RIGHT:
+            state_of_button = 2
+            if ship.x > constants.SCREEN_X - constants.SPRITE_SIZE:
+                ship.move(constants.SCREEN_X - constants.SPRITE_SIZE, ship.y)
             else:
-                a_button = constants.button_state["button_up"]
+                ship.move(ship.x + constants.SHIP_MOVEMENT_SPEED, ship.y)
+            pass
+
+        # Move ship left
+        if keys & ugame.K_LEFT:
+            state_of_button = 4
+            if ship.x < 0:
+                ship.move(0, ship.y)
+            else:
+                ship.move(ship.x - constants.SHIP_MOVEMENT_SPEED, ship.y)
+            pass
+
+        # Move ship up
+        if keys & ugame.K_UP:
+            state_of_button = 1
+            if ship.y < 0:
+                ship.move(ship.x, 0)
+            else:
+                ship.move(ship.x, ship.y - constants.SHIP_MOVEMENT_SPEED)
+            pass
+
+        # Move ship down
+        if keys & ugame.K_DOWN:
+            state_of_button = 3
+            if ship.y > constants.SCREEN_Y - constants.SPRITE_SIZE:
+                ship.move(ship.x, constants.SCREEN_Y - constants.SPRITE_SIZE)
+            else:
+                ship.move(ship.x, ship.y + constants.SHIP_MOVEMENT_SPEED)
+            pass
 
         # update game logic
             if asteroids[asteroid_number].x > 0:
@@ -314,7 +359,7 @@ def game_scene(diff_mul):
                     enemy_2[enemy_number_2].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
                     show_enemy_3(enemy_2)
         # redraw sprite list
-        game.render_sprites(asteroids + enemy_1 + enemy_2)
+        game.render_sprites(sprites + asteroids + enemy_1 + enemy_2)
         game.tick()
 
 
