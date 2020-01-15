@@ -250,8 +250,10 @@ def game_scene(diff_mul):
         for y_location in range(constants.SCREEN_GRID_Y):
             tile_picked = random.randint(0, 15)
             background.tile(x_location, y_location, tile_picked)
-
-    shoot_sound = open("pew.wav", 'rb')
+    a_button = constants.button_state["button_up"]
+    sound = ugame.audio
+    sound.stop()
+    sound.mute(False)
 
     # Buttons that you want to keep state information on
     a_button = constants.button_state["button_up"]
@@ -286,11 +288,6 @@ def game_scene(diff_mul):
         single_2 = stage.Sprite(image_bank_0, 2, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
         enemy_2.append(single_2)
 
-    enemy_lasers_v = []
-    for enemy_laser_count_v in range(constants.ENEMY_LASERS_V):
-        single_laser_v_e = stage.Sprite(image_bank_1, 8, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
-        enemy_lasers_v.append(single_laser_v_e)
-
 
     enemy_count = 1
     show_enemy(asteroids)
@@ -302,11 +299,11 @@ def game_scene(diff_mul):
     game.layers = sprites + enemy_1 + enemy_2 + asteroids + scoretext + [background]
     # render background and sprite list
     game.render_block()
-    timer = 0
     # repeat forever, game loop
     while True:
         # get user input
         keys = ugame.buttons.get_pressed()
+       
         # Move ship right
         if keys & ugame.K_RIGHT:
             state_of_button = 2
@@ -344,7 +341,6 @@ def game_scene(diff_mul):
             pass
 
         # update game logic
-        for asteroid_number in range(len(asteroids)):
             if asteroids[asteroid_number].x > 0:
                 asteroids[asteroid_number].move(asteroids[asteroid_number].x, asteroids[asteroid_number].y + constants.ENEMY_SPEED)
                 if asteroids[asteroid_number].y > constants.SCREEN_Y:
