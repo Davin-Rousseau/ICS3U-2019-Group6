@@ -271,11 +271,6 @@ def game_scene(diff_mul):
         single_2 = stage.Sprite(image_bank_0, 2, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
         enemy_2.append(single_2)
 
-    enemy_lasers_v = []
-    for enemy_laser_count_v in range(constants.ENEMY_LASERS_V):
-        single_laser_v_e = stage.Sprite(image_bank_1, 8, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
-        enemy_lasers_v.append(single_laser_v_e)
-
 
     enemy_count = 1
     show_enemy(asteroids)
@@ -284,12 +279,11 @@ def game_scene(diff_mul):
     # set frame rate to 60fps
     game = stage.Stage(ugame.display, 60)
     # set layers, items show up in order
-    game.layers = enemy_1 + enemy_2 + enemy_lasers_v + asteroids + [background]
+    game.layers = enemy_1 + enemy_2 + asteroids + [background]
     # render background and sprite list
     game.render_block()
     # repeat forever, game loop
     while True:
-        timer = time.time()
         # get user input
         keys = ugame.buttons.get_pressed()
         if keys & ugame.K_X != 0:
@@ -304,20 +298,6 @@ def game_scene(diff_mul):
                 a_button = constants.button_state["button_up"]
 
         # update game logic
-        if timer % 2 == 0:
-            for enemy_laser_count_v in range(len(enemy_lasers_v)):
-                if enemy_lasers_v[enemy_laser_count_v].x < 0:
-                    enemy_lasers_v[enemy_laser_count_v].move(single_1.x, single_1.y)
-                    #sound.stop()
-                    #sound.play(shoot_sound)
-                    break
-        for enemy_laser_count_v in range(len(enemy_lasers_v)):
-            if enemy_lasers_v[enemy_laser_count_v].x > 0:
-                enemy_lasers_v[enemy_laser_count_v].move(enemy_lasers_v[enemy_laser_count_v].x, enemy_lasers_v[enemy_laser_count_v].y - constants.LASER_SPEED)
-                enemy_lasers_v[enemy_laser_count_v].move(enemy_lasers_v[enemy_laser_count_v].x, enemy_lasers_v[enemy_laser_count_v].y - constants.LASER_SPEED)
-                if enemy_lasers_v[enemy_laser_count_v].y < constants.OFF_SCREEN_Y:
-                    enemy_lasers_v[enemy_laser_count_v].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
-        for asteroid_number in range(len(asteroids)):
             if asteroids[asteroid_number].x > 0:
                 asteroids[asteroid_number].move(asteroids[asteroid_number].x, asteroids[asteroid_number].y + constants.ENEMY_SPEED)
                 if asteroids[asteroid_number].y > constants.SCREEN_Y:
@@ -336,7 +316,7 @@ def game_scene(diff_mul):
                     enemy_2[enemy_number_2].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
                     show_enemy_3(enemy_2)
         # redraw sprite list
-        game.render_sprites(asteroids + enemy_1 + enemy_2 + enemy_lasers_v)
+        game.render_sprites(asteroids + enemy_1 + enemy_2)
         game.tick()
 
 
