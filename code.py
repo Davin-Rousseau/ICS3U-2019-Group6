@@ -250,8 +250,12 @@ def game_scene(diff_mul):
         for y_location in range(constants.SCREEN_GRID_Y):
             tile_picked = random.randint(0, 15)
             background.tile(x_location, y_location, tile_picked)
-
+    a_button = constants.button_state["button_up"]
     shoot_sound = open("pew.wav", 'rb')
+    boom_sound = open("boom.wav", 'rb')
+    sound = ugame.audio
+    sound.stop()
+    sound.mute(False)
 
     # Buttons that you want to keep state information on
     a_button = constants.button_state["button_up"]
@@ -261,15 +265,24 @@ def game_scene(diff_mul):
     sprites = []
     ship = stage.Sprite(image_bank_1, 0, 80, 64)
     sprites.insert(0, ship)  # insert at the top of sprite list
-    
-    global score
+
+    score = 0
     scoretext = []
     score_text = stage.Text(width=29, height=14, font=None,
                             palette=constants.SCORE_PALETTE, buffer=None)
     score_text.cursor(0, 0)
-    score_text.move(86, 118)
+    score_text.move(1, 118)
     score_text.text("Points: {0}".format(score))
     scoretext.append(score_text)
+
+    lives = 3
+    livestext = []
+    lives_text = stage.Text(width=29, height=14, font=None,
+                            palette=constants.LIVES_PALETTE, buffer=None)
+    lives_text.cursor(0, 0)
+    lives_text.move(1, 1)
+    lives_text.text("Lives: {0}".format(lives))
+    livestext.append(lives_text)
 
     asteroids = []
     for asteroids_number in range(constants.TOTAL_ASTEROIDS * diff_mul):
@@ -286,11 +299,10 @@ def game_scene(diff_mul):
         single_2 = stage.Sprite(image_bank_0, 2, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
         enemy_2.append(single_2)
 
-    enemy_lasers_v = []
-    for enemy_laser_count_v in range(constants.ENEMY_LASERS_V):
-        single_laser_v_e = stage.Sprite(image_bank_1, 8, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
-        enemy_lasers_v.append(single_laser_v_e)
-
+    lasers = []
+    for laser_number in range(constants.TOTAL_NUMBER_OF_LASERS):
+        single_laser = stage.Sprite(image_bank_1, 8, constants.OFF_TOP_SCREEN, constants.OFF_TOP_SCREEN)
+        lasers.append(single_laser)
 
     enemy_count = 1
     show_enemy(asteroids)
@@ -299,14 +311,53 @@ def game_scene(diff_mul):
     # set frame rate to 60fps
     game = stage.Stage(ugame.display, 60)
     # set layers, items show up in order
-    game.layers = sprites + enemy_1 + enemy_2 + asteroids + scoretext + [background]
+    game.layers = sprites + enemy_1 + enemy_2 + asteroids + lasers + scoretext + livestext + [background]
     # render background and sprite list
     game.render_block()
-    timer = 0
     # repeat forever, game loop
     while True:
         # get user input
         keys = ugame.buttons.get_pressed()
+        if keys & ugame.K_X != 0:
+            if a_button == constants.button_state["button_up"]:
+                a_button = constants.button_state["button_just_pressed"]
+            elif a_button == constants.button_state["button_just_pressed"]:
+                a_button = constants.button_state["button_still_pressed"]
+        else:
+            if a_button == constants.button_state["button_still_pressed"]:
+                a_button = constants.button_state["button_released"]
+            else:
+                a_button = constants.button_state["button_up"]
+
+        if a_button == constants.button_state["button_just_pressed"]:
+            for laser_number in range(len(lasers)):
+                if lasers[laser_number].x < 0:
+                    lasers[laser_number] .move(ship.x, ship.y)
+                    sound.stop()
+                    sound.play(shoot_sound)
+                    break
+        for laser_number in range(len(lasers)):
+                if lasers[laser_number].x > 0:
+                    if ship.rotation == 0:
+                        lasers[laser_number].set_frame(rotation=0)
+                        lasers[laser_number].move(lasers[laser_number].x, lasers[laser_number].y - constants.LASER_SPEED)
+                        if lasers[laser_number].y < constants.OFF_SCREEN_Y:
+                            lasers[laser_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                    elif ship.rotation == 1:
+                        lasers[laser_number].set_frame(rotation=1)
+                        lasers[laser_number].move(lasers[laser_number].x + constants.LASER_SPEED, lasers[laser_number].y)
+                        if lasers[laser_number].x > 160:
+                            lasers[laser_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                    elif ship.rotation == 2:
+                        lasers[laser_number].set_frame(rotation=0)
+                        lasers[laser_number].move(lasers[laser_number].x, lasers[laser_number].y + constants.LASER_SPEED)
+                        if lasers[laser_number].y > 128:
+                            lasers[laser_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                    elif ship.rotation == 3:
+                        lasers[laser_number].set_frame(rotation=1)
+                        lasers[laser_number].move(lasers[laser_number].x - constants.LASER_SPEED, lasers[laser_number].y)
+                        if lasers[laser_number].x < 5:
+                            lasers[laser_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
         # Move ship right
         if keys & ugame.K_RIGHT:
             state_of_button = 2
@@ -314,15 +365,17 @@ def game_scene(diff_mul):
                 ship.move(constants.SCREEN_X - constants.SPRITE_SIZE, ship.y)
             else:
                 ship.move(ship.x + constants.SHIP_MOVEMENT_SPEED, ship.y)
+                ship.set_frame(rotation=1)
             pass
 
         # Move ship left
         if keys & ugame.K_LEFT:
             state_of_button = 4
-            if ship.x < 0:
-                ship.move(0, ship.y)
+            if ship.x < 5:
+                ship.move(5, ship.y)
             else:
                 ship.move(ship.x - constants.SHIP_MOVEMENT_SPEED, ship.y)
+                ship.set_frame(rotation=3)
             pass
 
         # Move ship up
@@ -332,6 +385,7 @@ def game_scene(diff_mul):
                 ship.move(ship.x, 0)
             else:
                 ship.move(ship.x, ship.y - constants.SHIP_MOVEMENT_SPEED)
+                ship.set_frame(rotation=0)
             pass
 
         # Move ship down
@@ -341,6 +395,7 @@ def game_scene(diff_mul):
                 ship.move(ship.x, constants.SCREEN_Y - constants.SPRITE_SIZE)
             else:
                 ship.move(ship.x, ship.y + constants.SHIP_MOVEMENT_SPEED)
+                ship.set_frame(rotation=2)
             pass
 
         # update game logic
@@ -362,8 +417,119 @@ def game_scene(diff_mul):
                 if enemy_2[enemy_number_2].x > constants.SCREEN_X:
                     enemy_2[enemy_number_2].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
                     show_enemy_3(enemy_2)
+        for laser_number in range(len(lasers)):
+            if lasers[laser_number].x > 0:
+                for enemy_number_1 in range(len(enemy_1)):
+                    if enemy_1[enemy_number_1].x > 0:
+                        if stage.collide(lasers[laser_number].x, lasers[laser_number].y,
+                                         lasers[laser_number].x + 16, lasers[laser_number].y + 16,
+                                         enemy_1[enemy_number_1].x, enemy_1[enemy_number_1].y,
+                                         enemy_1[enemy_number_1].x + 16, enemy_1[enemy_number_1].y + 16):
+                            enemy_1[enemy_number_1].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                            lasers[laser_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                            score += 10*diff_mul
+                            score_text.clear()
+                            score_text.cursor(0,0)
+                            score_text.move(1, 118)
+                            score_text.text("Points: {0}".format(score))
+                            sound.stop()
+                            sound.play(boom_sound)
+                            show_enemy_2(enemy_1)
+                            show_enemy_2(enemy_1)
+                for enemy_number_2 in range(len(enemy_2)):
+                    if enemy_2[enemy_number_2].x > 0:
+                        if stage.collide(lasers[laser_number].x, lasers[laser_number].y,
+                                         lasers[laser_number].x + 16, lasers[laser_number].y + 16,
+                                         enemy_2[enemy_number_2].x, enemy_2[enemy_number_2].y,
+                                         enemy_2[enemy_number_2].x + 16, enemy_2[enemy_number_2].y + 16):
+                            enemy_2[enemy_number_2].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                            lasers[laser_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                            score += 10*diff_mul
+                            score_text.clear()
+                            score_text.cursor(0,0)
+                            score_text.move(1, 118)
+                            score_text.text("Points: {0}".format(score))
+                            sound.stop()
+                            sound.play(boom_sound)
+                            show_enemy_3(enemy_2)
+                            show_enemy_3(enemy_2)
+                for asteroid_number in range(len(asteroids)):
+                    if asteroids[asteroid_number].x > 0:
+                        if stage.collide(lasers[laser_number].x, lasers[laser_number].y,
+                                         lasers[laser_number].x + 16, lasers[laser_number].y + 16,
+                                         asteroids[asteroid_number].x, asteroids[asteroid_number].y,
+                                         asteroids[asteroid_number].x + 16, asteroids[asteroid_number].y + 16):
+                            asteroids[asteroid_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                            lasers[laser_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                            score += 5*diff_mul
+                            score_text.clear()
+                            score_text.cursor(0,0)
+                            score_text.move(1, 118)
+                            score_text.text("Points: {0}".format(score))
+                            sound.stop()
+                            sound.play(boom_sound)
+                            show_enemy(asteroids)
+                            show_enemy(asteroids)
+
+        for enemy_number_1 in range(len(enemy_1)):
+            if enemy_1[enemy_number_1].x > 0:
+                if stage.collide(enemy_1[enemy_number_1].x, enemy_1[enemy_number_1].y,
+                                 enemy_1[enemy_number_1].x + 16, enemy_1[enemy_number_1].y + 16,
+                                 ship.x, ship.y,
+                                 ship.x + 16, ship.y + 16):
+                    lives -= 1
+                    ship.move(-100, -100)
+                    sound.stop()
+                    sound.play(boom_sound)
+                    time.sleep(1)
+                    if lives == 0:
+                        game_over_scene(score)
+                    else:
+                        lives_text.clear()
+                        lives_text.cursor(0,0)
+                        lives_text.move(1, 1)
+                        lives_text.text("Lives: {0}".format(lives))
+                        ship.move (random.randint(16, 146), random.randint(16, 106))
+        for enemy_number_2 in range(len(enemy_2)):
+            if enemy_2[enemy_number_2].x > 0:
+                if stage.collide(enemy_2[enemy_number_2].x, enemy_2[enemy_number_2].y,
+                                 enemy_2[enemy_number_2].x + 16, enemy_2[enemy_number_2].y + 16,
+                                 ship.x, ship.y,
+                                 ship.x + 16, ship.y + 16):
+                    lives -= 1
+                    ship.move(-100, -100)
+                    sound.stop()
+                    sound.play(boom_sound)
+                    time.sleep(1)
+                    if lives == 0:
+                        game_over_scene(score)
+                    else:
+                        lives_text.clear()
+                        lives_text.cursor(0,0)
+                        lives_text.move(1, 1)
+                        lives_text.text("Lives: {0}".format(lives))
+                        ship.move (random.randint(16, 146), random.randint(16, 106))
+        for asteroid_number in range(len(asteroids)):
+            if asteroids[asteroid_number].x > 0:
+                if stage.collide(asteroids[asteroid_number].x, asteroids[asteroid_number].y,
+                                 asteroids[asteroid_number].x + 16, asteroids[asteroid_number].y + 16,
+                                 ship.x, ship.y,
+                                 ship.x + 16, ship.y + 16):
+                    lives -= 1
+                    ship.move(-100, -100)
+                    sound.stop()
+                    sound.play(boom_sound)
+                    time.sleep(1)
+                    if lives == 0:
+                        game_over_scene(score)
+                    else:
+                        lives_text.clear()
+                        lives_text.cursor(0,0)
+                        lives_text.move(1, 1)
+                        lives_text.text("Lives: {0}".format(lives))
+                        ship.move (random.randint(16, 146), random.randint(16, 106))
         # redraw sprite list
-        game.render_sprites(sprites + asteroids + enemy_1 + enemy_2)
+        game.render_sprites(sprites + asteroids + enemy_1 + enemy_2 + lasers)
         game.tick()
 
 
