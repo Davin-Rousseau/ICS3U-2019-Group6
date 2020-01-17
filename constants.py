@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 
 # Created by: Mr. Coxall
@@ -19,7 +18,7 @@ TOTAL_ENEMY_2 = 2
 TOTAL_ASTEROIDS = 4
 TOTAL_NUMBER_OF_LASERS = 10
 ENEMY_SPEED = 1
-LASER_SPEED = 8
+LASER_SPEED = 20
 SHIP_MOVEMENT_SPEED = 1
 
 MT_GAME_STUDIO_PALETTE = (b'\xf8\x1f\x00\x00\xcey\x00\xff\xf8\x1f\xff\x19\xfc\xe0\xfd\xe0'
