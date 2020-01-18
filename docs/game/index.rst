@@ -12,22 +12,6 @@ Here is the code for the main game:
   :linenos:
   
   def game_scene(diff_mul):
-  score = 0
-  def show_enemy(enemy):
-    for enemy_number in range(len(enemy)):
-        if enemy[enemy_number].y < 0:
-            enemy[enemy_number].move(random.randint(0 + constants.SPRITE_SIZE, constants.SCREEN_X - constants.SPRITE_SIZE), constants.OFF_TOP_SCREEN)
-            break
- def show_enemy_2(enemy):
-    for enemy_number in range(len(enemy)):
-        if enemy[enemy_number].x < 0:
-            enemy[enemy_number].move(constants.OFF_TOP_SCREEN, random.randint(0 + constants.SPRITE_SIZE, constants.SCREEN_X - constants.SPRITE_SIZE),)
-            break
- def show_enemy_3(enemy):
-    for enemy_number in range(len(enemy)):
-        if enemy[enemy_number].x < 0:
-            enemy[enemy_number].move(constants.OFF_TOP_SCREEN, random.randint(0 + constants.SPRITE_SIZE, constants.SCREEN_X - constants.SPRITE_SIZE),)
-            break
     # this function is the game scene
     # background image bank ready
     background_bank = stage.Bank.from_bmp16("background.bmp")
