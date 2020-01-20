@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 
 # Created by: Davin and DJ
@@ -308,6 +307,7 @@ def game_scene(diff_mul):
     show_enemy(asteroids)
     show_enemy_2(enemy_1)
     show_enemy_3(enemy_2)
+    death_mul = 1
     # set frame rate to 60fps
     game = stage.Stage(ugame.display, 60)
     # set layers, items show up in order
@@ -364,7 +364,7 @@ def game_scene(diff_mul):
             if ship.x > constants.SCREEN_X - constants.SPRITE_SIZE:
                 ship.move(constants.SCREEN_X - constants.SPRITE_SIZE, ship.y)
             else:
-                ship.move(ship.x + constants.SHIP_MOVEMENT_SPEED, ship.y)
+                ship.move(ship.x + constants.SHIP_MOVEMENT_SPEED * death_mul * diff_mul, ship.y)
                 ship.set_frame(rotation=1)
             pass
 
@@ -374,7 +374,7 @@ def game_scene(diff_mul):
             if ship.x < 5:
                 ship.move(5, ship.y)
             else:
-                ship.move(ship.x - constants.SHIP_MOVEMENT_SPEED, ship.y)
+                ship.move(ship.x - constants.SHIP_MOVEMENT_SPEED * death_mul * diff_mul, ship.y)
                 ship.set_frame(rotation=3)
             pass
 
@@ -384,7 +384,7 @@ def game_scene(diff_mul):
             if ship.y < 0:
                 ship.move(ship.x, 0)
             else:
-                ship.move(ship.x, ship.y - constants.SHIP_MOVEMENT_SPEED)
+                ship.move(ship.x, ship.y - constants.SHIP_MOVEMENT_SPEED * death_mul * diff_mul)
                 ship.set_frame(rotation=0)
             pass
 
@@ -392,28 +392,28 @@ def game_scene(diff_mul):
         if keys & ugame.K_DOWN:
             state_of_button = 3
             if ship.y > constants.SCREEN_Y - constants.SPRITE_SIZE:
-                ship.move(ship.x, constants.SCREEN_Y - constants.SPRITE_SIZE)
+                ship.move(ship.x, constants.SCREEN_Y - constants.SPRITE_SIZE * death_mul * diff_mul)
             else:
-                ship.move(ship.x, ship.y + constants.SHIP_MOVEMENT_SPEED)
+                ship.move(ship.x, ship.y + constants.SHIP_MOVEMENT_SPEED * death_mul * diff_mul)
                 ship.set_frame(rotation=2)
             pass
 
         # update game logic
         for asteroid_number in range(len(asteroids)):
             if asteroids[asteroid_number].x > 0:
-                asteroids[asteroid_number].move(asteroids[asteroid_number].x, asteroids[asteroid_number].y + constants.ENEMY_SPEED)
+                asteroids[asteroid_number].move(asteroids[asteroid_number].x, asteroids[asteroid_number].y + constants.ENEMY_SPEED  * diff_mul * death_mul)
                 if asteroids[asteroid_number].y > constants.SCREEN_Y:
                     asteroids[asteroid_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
                     show_enemy(asteroids)
         for enemy_number_1 in range(len(enemy_1)):
             if enemy_1[enemy_number_1].y > 0:
-                enemy_1[enemy_number_1].move(enemy_1[enemy_number_1].x + constants.ENEMY_SPEED, enemy_1[enemy_number_1].y)
+                enemy_1[enemy_number_1].move(enemy_1[enemy_number_1].x + constants.ENEMY_SPEED * death_mul * diff_mul, enemy_1[enemy_number_1].y)
                 if enemy_1[enemy_number_1].x > constants.SCREEN_X:
                     enemy_1[enemy_number_1].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
                     show_enemy_2(enemy_1)
         for enemy_number_2 in range(len(enemy_2)):
             if enemy_2[enemy_number_2].y > 0:
-                enemy_2[enemy_number_2].move(enemy_2[enemy_number_2].x + constants.ENEMY_SPEED, enemy_2[enemy_number_2].y)
+                enemy_2[enemy_number_2].move(enemy_2[enemy_number_2].x + constants.ENEMY_SPEED * death_mul * diff_mul, enemy_2[enemy_number_2].y)
                 if enemy_2[enemy_number_2].x > constants.SCREEN_X:
                     enemy_2[enemy_number_2].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
                     show_enemy_3(enemy_2)
@@ -436,6 +436,7 @@ def game_scene(diff_mul):
                             sound.play(boom_sound)
                             show_enemy_2(enemy_1)
                             show_enemy_2(enemy_1)
+                            death_mul += (1/30)
                 for enemy_number_2 in range(len(enemy_2)):
                     if enemy_2[enemy_number_2].x > 0:
                         if stage.collide(lasers[laser_number].x, lasers[laser_number].y,
@@ -453,6 +454,7 @@ def game_scene(diff_mul):
                             sound.play(boom_sound)
                             show_enemy_3(enemy_2)
                             show_enemy_3(enemy_2)
+                            death_mul += (1/30)
                 for asteroid_number in range(len(asteroids)):
                     if asteroids[asteroid_number].x > 0:
                         if stage.collide(lasers[laser_number].x, lasers[laser_number].y,
@@ -470,7 +472,7 @@ def game_scene(diff_mul):
                             sound.play(boom_sound)
                             show_enemy(asteroids)
                             show_enemy(asteroids)
-
+                            death_mul += (1/30)
         for enemy_number_1 in range(len(enemy_1)):
             if enemy_1[enemy_number_1].x > 0:
                 if stage.collide(enemy_1[enemy_number_1].x, enemy_1[enemy_number_1].y,
@@ -535,13 +537,75 @@ def game_scene(diff_mul):
 
 def game_over_scene(final_score):
     # this function is the game over scene
+   # an image bank for CircuitPython
+    image_bank_2 = stage.Bank.from_bmp16("mt_game_studio.bmp")
+
+    # sets the background to image 0 in the bank
+    background = stage.Grid(image_bank_2, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y)
+
+    text = []
+
+    text1 = stage.Text(width=29, height=14, font=None,
+                       palette=constants.MT_GAME_STUDIO_PALETTE, buffer=None)
+    text1.move(30, 66)
+    text1.text("Your Score: {:0>2d}".format(final_score))
+    text.append(text1)
+
+    text2 = stage.Text(width=29, height=14, font=None,
+                       palette=constants.MT_GAME_STUDIO_PALETTE, buffer=None)
+    text2.move(35, 20)
+    text2.text("GAME OVER!!!")
+    text.append(text2)
+
+    text3 = stage.Text(width=29, height=14, font=None,
+                       palette=constants.MT_GAME_STUDIO_PALETTE, buffer=None)
+    text3.move(27, 110)
+    text3.text("PRESS ANY BUTTON!")
+    text.append(text3)
+
+    text4 = stage.Text(width=29, height=14, font=None,
+                       palette=constants.MT_GAME_STUDIO_PALETTE, buffer=None)
+    text4.move(27, 120)
+    text4.text("TO MAIN MENU")
+    text.append(text4)
+
+    # create a stage for the background to show up on
+    #   and set the frame rate to 60fps
+    game = stage.Stage(ugame.display, 60)
+    # set the background layer
+    game.layers = text + [background]
+    # render the background
+    # most likely you will only render background once per scene
+    game.render_block()
 
     # repeat forever, game loop
     while True:
         # get user input
-
-        # update game logic
-
+        keys = ugame.buttons.get_pressed()
+        if keys & ugame.K_SELECT != 0:
+            keys = 0
+            main_menu_scene()
+        elif keys & ugame.K_START != 0:
+            keys = 1
+            main_menu_scene()
+        elif keys & ugame.K_X != 0:
+            keys = 2
+            main_menu_scene()
+        elif keys & ugame.K_O != 0:
+            keys = 3
+            main_menu_scene()
+        elif keys & ugame.K_UP != 0:
+            keys = 4
+            main_menu_scene()
+        elif keys & ugame.K_DOWN != 0:
+            keys = 5
+            main_menu_scene()
+        elif keys & ugame.K_LEFT != 0:
+            keys = 6
+            main_menu_scene()
+        elif keys & ugame.K_RIGHT != 0:
+            keys = 7
+            main_menu_scene()
         # redraw sprite list
         pass # just a placeholder until you write the code
 

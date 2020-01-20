@@ -4,7 +4,7 @@
 Menu System
 ***********
 
-X
+To make the game look more professional, there are three extra scenes in our game: The start scene(main menu), the splash scene, and Game Over Scene.  
 
 .. toctree::
    :maxdepth: 1
